@@ -1,0 +1,16 @@
+language: java
+sudo: false
+notifications:
+  slack: sem5640-2018:B3KKIVa9nY0Z37nr1VY5vUFS
+
+
+cache:
+  directories:
+    - $HOME/.m2
+
+
+install: 
+# Build dependencies first so it goes away
+- mvn dependency:resolve
+script: 
+- mvn test -B
