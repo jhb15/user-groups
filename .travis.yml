@@ -3,6 +3,11 @@ sudo: false
 notifications:
   slack: sem5640-2018:B3KKIVa9nY0Z37nr1VY5vUFS
 
+# Specify which branches can be built on merge
+branches:
+  only:
+    - master
+    - development
 
 cache:
   directories:
