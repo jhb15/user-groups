@@ -8,7 +8,6 @@ AberFitness User Groups Microservice
 
 
 # Maintained by
-* David
-* Andrew
-
+* Adam
+* ???
 
