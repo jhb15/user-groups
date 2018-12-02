@@ -1,16 +1,35 @@
-language: java
-sudo: false
+stages:
+  - test
+  - name: build_staging
+    if: branch = development AND type = push
+  - name: build_release
+    if: branch = master AND type = push
+
+jobs:
+  include:
+    - stage: test
+      name: "xUnit Tests"
+      language: csharp
+      solution: user-groups.sln
+      mono: none
+      dotnet: 2.1
+      script:
+        - dotnet restore
+        - dotnet test UserGroupsTest/UserGroupsTest.csproj
+    - stage: build_staging
+      name: "Build docker staging image"
+      sudo: required
+      services:
+        - docker
+      script:
+        - ./bin/docker.sh staging
+    - stage: build_release
+      name: "Build docker release image"
+      sudo: required
+      services:
+        - docker
+      script:
+        - ./bin/docker.sh latest
+
 notifications:
-  slack: sem5640-2018:B3KKIVa9nY0Z37nr1VY5vUFS
-
-
-cache:
-  directories:
-    - $HOME/.m2
-
-
-install: 
-# Build dependencies first so it goes away
-- mvn dependency:resolve
-script: 
-- mvn test -B
+    slack: sem5640-2018:B3KKIVa9nY0Z37nr1VY5vUFS
