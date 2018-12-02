@@ -2,91 +2,144 @@
   "openapi": "3.0.0",
   "info": {
     "description": "User-Groups API.",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "title": "User-Groups API"
   },
   "tags": [
     {
-      "name": "group",
-      "description": "Request the members of a given group"
+      "name": "Group",
+      "description": "Operations related to Groups"
     },
     {
-      "name": "user",
-      "description": "Describes the group a member belongs to if any"
+      "name": "User",
+      "description": "Operations related to a User's group membership"
+    },
+    {
+      "name": "Service",
+      "description": "Operations related to the Service itself"
+    }
+  ],
+  "servers": [
+    {
+      "url": "https://docker2.aberfitness.biz/user-groups/",
+      "description": "Staging instance"
     }
   ],
   "components": {
     "securitySchemes": {
-      "bearerAuth": {
-        "type": "http",
-        "scheme": "bearer"
+      "OAuth2": {
+        "type": "oauth2",
+        "flows": {
+          "clientCredentials": {
+            "tokenUrl": "../gatekeeper/connect/token",
+            "refreshUrl": "../gatekeeper/connect/token",
+            "scopes": "user_groups"
+          }
+        }
+      }
+    },
+    "schemas": {
+      "Group": {
+        "properties": {
+          "Id": {
+            "type": "integer"
+          },
+          "Name": {
+            "type": "string"
+          },
+          "Members": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        }
       }
     }
   },
-  "security": [
-    {
-      "bearerAuth": []
-    }
-  ],
   "paths": {
-    "/group/{groupId}": {
+    "/api/Status": {
       "get": {
         "tags": [
-          "group"
+          "Service"
         ],
-        "summary": "Returns all members matching the given group ID",
+        "summary": "Queries the service status",
+        "responses": {
+          "200": {
+            "description": "The service is healthy"
+          }
+        }
+      }
+    },
+    "/api/Groups/{id}": {
+      "get": {
+        "tags": [
+          "Group"
+        ],
+        "summary": "Returns the details of a single Group",
         "parameters": [
           {
             "in": "path",
-            "name": "groupId",
+            "name": "id",
             "required": true,
             "schema": {
-              "type": "string"
-            },
-            "description": "The group's unique ID to lookup"
+              "type": "integer"
+            }
           }
         ],
         "responses": {
           "200": {
-            "description": "The user IDs which belong to this group"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Group"
+                }
+              }
+            }
           },
           "401": {
             "description": "Unauthorised"
           },
           "404": {
-            "description": "The requested group does not exist"
-          },
-          "500": {
-            "description": "Internal server error"
+            "description": "Group doesn't exist"
           }
         }
       }
     },
-    "/group/all": {
+    "/api/Groups/": {
       "get": {
         "tags": [
-          "group"
+          "Group"
         ],
-        "summary": "Returns all groups",
+        "summary": "Returns the details of all Groups",
         "responses": {
           "200": {
-            "description": "All group IDs"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Group"
+                  }
+                }
+              }
+            }
           },
           "401": {
             "description": "Unauthorised"
-          },
-          "500": {
-            "description": "Internal server error"
           }
         }
       }
     },
-    "/user/{userId}": {
+    "/api/Groups/ForUser/{userId}": {
       "get": {
         "tags": [
-          "user"
+          "User"
         ],
-        "summary": "Returns the group which a user belongs to",
+        "summary": "Returns the Group which User belongs to",
         "parameters": [
           {
             "in": "path",
@@ -94,22 +147,26 @@
             "required": true,
             "schema": {
               "type": "string",
-              "description": "The user ID to lookup"
+              "format": "uuid"
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "The groups this user ID belongs to, if any."
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Group"
+                }
+              }
+            }
           },
           "401": {
             "description": "Unauthorised"
           },
           "404": {
-            "description": "The requested user does not exist"
-          },
-          "500": {
-            "description": "Internal server error"
+            "description": "The User does not belong to any group"
           }
         }
       }
