@@ -14,5 +14,7 @@ namespace UserGroups.Models
         }
 
         public DbSet<UserGroups.Models.Group> Group { get; set; }
+
+        public DbSet<UserGroups.Models.GroupMember> GroupMember { get; set; }
     }
 }
