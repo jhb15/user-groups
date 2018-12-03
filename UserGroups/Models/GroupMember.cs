@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -9,6 +10,7 @@ namespace UserGroups.Models
     public class GroupMember
     {
         [Key]
+        [JsonIgnore]
         public virtual int Id { get; set; }
 
         [Required]
@@ -16,6 +18,11 @@ namespace UserGroups.Models
         public virtual string UserId { get; set; }
 
         [Required]
+        [JsonIgnore]
         public virtual MemberType Type { get; set; }
+
+        [Required]
+        [JsonIgnore]
+        public virtual int GroupId { get; set; }
     }
 }
