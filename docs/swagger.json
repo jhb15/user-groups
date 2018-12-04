@@ -46,13 +46,29 @@
           },
           "Name": {
             "type": "string"
-          },
+          }
+        }
+      },
+      "GroupWithMembers": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Group"
+          }
+        ],
+        "properties": {
           "Members": {
             "type": "array",
             "items": {
-              "type": "string",
-              "format": "uuid"
+              "$ref":"#/components/schemas/GroupMember"
             }
+          }
+        }
+      },
+      "GroupMember": {
+        "properties": {
+          "UserId": {
+            "type": "string",
+            "format": "uuid"
           }
         }
       }
@@ -94,7 +110,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Group"
+                  "$ref": "#/components/schemas/GroupWithMembers"
                 }
               }
             }
@@ -157,7 +173,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Group"
+                  "$ref": "#/components/schemas/GroupWithMembers"
                 }
               }
             }
