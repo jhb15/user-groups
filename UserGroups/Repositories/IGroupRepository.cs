@@ -11,5 +11,11 @@ namespace UserGroups.Repositories
         Task<Group> GetByIdAsync(int id);
 
         Task<List<Group>> GetAllAsync();
+
+        Task<Group> AddAsync(Group g);
+
+        Task<Group> UpdateAsync(Group g);
+
+        Task<Group> DeleteAsync(Group g);
     }
 }
