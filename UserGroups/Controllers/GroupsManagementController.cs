@@ -2,26 +2,29 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using UserGroups.Models;
+using UserGroups.Repositories;
 
 namespace UserGroups.Controllers
 {
+    [Authorize(AuthenticationSchemes = "oidc")]
     public class GroupsManagementController : Controller
     {
-        private readonly UserGroupsContext _context;
+        private readonly IGroupRepository groupRepository;
 
-        public GroupsManagementController(UserGroupsContext context)
+        public GroupsManagementController(IGroupRepository groupRepository)
         {
-            _context = context;
+            this.groupRepository = groupRepository;
         }
 
         // GET: GroupsManagement
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Group.ToListAsync());
+            return View(await groupRepository.GetAllAsync());
         }
 
         // GET: GroupsManagement/Details/5
@@ -32,14 +35,13 @@ namespace UserGroups.Controllers
                 return NotFound();
             }
 
-            var @group = await _context.Group
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (@group == null)
+            var group = await groupRepository.GetByIdAsync(id.Value);
+            if (group == null)
             {
                 return NotFound();
             }
 
-            return View(@group);
+            return View(group);
         }
 
         // GET: GroupsManagement/Create
@@ -53,15 +55,14 @@ namespace UserGroups.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name")] Group @group)
+        public async Task<IActionResult> Create([Bind("Id,Name")] Group group)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(@group);
-                await _context.SaveChangesAsync();
+                await groupRepository.AddAsync(group);
                 return RedirectToAction(nameof(Index));
             }
-            return View(@group);
+            return View(group);
         }
 
         // GET: GroupsManagement/Edit/5
@@ -72,12 +73,12 @@ namespace UserGroups.Controllers
                 return NotFound();
             }
 
-            var @group = await _context.Group.FindAsync(id);
-            if (@group == null)
+            var group = await groupRepository.GetByIdAsync(id.Value);
+            if (group == null)
             {
                 return NotFound();
             }
-            return View(@group);
+            return View(group);
         }
 
         // POST: GroupsManagement/Edit/5
@@ -85,34 +86,19 @@ namespace UserGroups.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name")] Group @group)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name")] Group group)
         {
-            if (id != @group.Id)
+            if (id != group.Id)
             {
                 return NotFound();
             }
 
             if (ModelState.IsValid)
             {
-                try
-                {
-                    _context.Update(@group);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!GroupExists(@group.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
+                await groupRepository.UpdateAsync(group);
                 return RedirectToAction(nameof(Index));
             }
-            return View(@group);
+            return View(group);
         }
 
         // GET: GroupsManagement/Delete/5
@@ -123,14 +109,13 @@ namespace UserGroups.Controllers
                 return NotFound();
             }
 
-            var @group = await _context.Group
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (@group == null)
+            var group = await groupRepository.GetByIdAsync(id.Value);
+            if (group == null)
             {
                 return NotFound();
             }
 
-            return View(@group);
+            return View(group);
         }
 
         // POST: GroupsManagement/Delete/5
@@ -138,15 +123,9 @@ namespace UserGroups.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var @group = await _context.Group.FindAsync(id);
-            _context.Group.Remove(@group);
-            await _context.SaveChangesAsync();
+            var group = await groupRepository.GetByIdAsync(id);
+            await groupRepository.DeleteAsync(group);
             return RedirectToAction(nameof(Index));
-        }
-
-        private bool GroupExists(int id)
-        {
-            return _context.Group.Any(e => e.Id == id);
         }
     }
 }
