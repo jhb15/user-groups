@@ -45,6 +45,7 @@ namespace UserGroups.Controllers
         }
 
         // GET: GroupsManagement/Create
+        [Authorize(AuthenticationSchemes = "oidc", Policy = "Administrator")]
         public IActionResult Create()
         {
             return View();
@@ -55,6 +56,7 @@ namespace UserGroups.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(AuthenticationSchemes = "oidc", Policy = "Administrator")]
         public async Task<IActionResult> Create([Bind("Id,Name")] Group group)
         {
             if (ModelState.IsValid)
@@ -66,6 +68,7 @@ namespace UserGroups.Controllers
         }
 
         // GET: GroupsManagement/Edit/5
+        [Authorize(AuthenticationSchemes = "oidc", Policy = "Administrator")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -86,6 +89,7 @@ namespace UserGroups.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(AuthenticationSchemes = "oidc", Policy = "Administrator")]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Name")] Group group)
         {
             if (id != group.Id)
@@ -102,6 +106,7 @@ namespace UserGroups.Controllers
         }
 
         // GET: GroupsManagement/Delete/5
+        [Authorize(AuthenticationSchemes = "oidc", Policy = "Administrator")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -121,11 +126,27 @@ namespace UserGroups.Controllers
         // POST: GroupsManagement/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(AuthenticationSchemes = "oidc", Policy = "Administrator")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var group = await groupRepository.GetByIdAsync(id);
             await groupRepository.DeleteAsync(group);
             return RedirectToAction(nameof(Index));
+        }
+
+        // GET: GroupsManagement/Join/{id}
+        [HttpGet]
+        public async Task<IActionResult> Join(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        // POST: GroupsManagement/Join/{id}
+        [HttpPost, ActionName("Join")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> JoinConfirmed(int id)
+        {
+            throw new NotImplementedException();
         }
     }
 }
