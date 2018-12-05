@@ -30,6 +30,7 @@ namespace UserGroups.Controllers
         }
 
         // GET: GroupsManagement/Details/5
+        [Authorize(AuthenticationSchemes = "oidc", Policy = "Administrator")]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
