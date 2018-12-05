@@ -19,14 +19,35 @@
                 <span asp-validation-for="Name" class="text-danger"></span>
             </div>
             <div class="form-group">
+                <a class="btn btn-default" asp-action="Index"><span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span> Back</a>
                 <input type="submit" value="Save" class="btn btn-success" />
             </div>
         </form>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
+<h4>Members</h4>
+<hr />
+<div class="row">
+    <div class="col-md-12">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <td>User</td>
+                    <td></td>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Members)
+                {
+                    <tr>
+                        <td>@item.UserId</td>
+                        <td><a class="btn btn-danger" asp-action="DeleteMember" asp-route-memberId="@item.Id" asp-route-groupId="@Model.Id"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></a></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 </div>
 
 @section Scripts {

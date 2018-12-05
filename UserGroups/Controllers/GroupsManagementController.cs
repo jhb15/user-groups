@@ -197,5 +197,16 @@ namespace UserGroups.Controllers
 
             return RedirectToAction(nameof(Index));
         }
+
+        [HttpGet]
+        public async Task<IActionResult> DeleteMember(int groupId, int memberId)
+        {
+            var group = await groupRepository.GetByIdAsync(groupId);
+            var groupMemeber = group.Members.SingleOrDefault(gm => gm.Id == memberId);
+            group.Members.Remove(groupMemeber);
+            await groupRepository.UpdateAsync(group);
+
+            return View(nameof(Edit), group);
+        }
     }
 }
