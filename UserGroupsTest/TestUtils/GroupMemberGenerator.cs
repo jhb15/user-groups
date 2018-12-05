@@ -12,8 +12,7 @@ namespace UserGroupsTest.TestUtils
             return new GroupMember
             {
                 UserId = $"{index}".PadLeft(36),
-                GroupId = groupId,
-                Type = MemberType.Member
+                GroupId = groupId
             };
         }
 

@@ -16,8 +16,7 @@ namespace UserGroupsTest.Models
             GroupMember gm = new GroupMember()
             {
                 Id = 0,
-                UserId = null,
-                Type = MemberType.Member
+                UserId = null
             };
 
             var results = ModelValidator.GetValidation(gm);
@@ -32,8 +31,7 @@ namespace UserGroupsTest.Models
             GroupMember gm = new GroupMember()
             {
                 Id = 0,
-                UserId = "a".PadLeft(35, 'a'),
-                Type = MemberType.Member
+                UserId = "a".PadLeft(35, 'a')
             };
 
             var results = ModelValidator.GetValidation(gm);
@@ -48,8 +46,7 @@ namespace UserGroupsTest.Models
             GroupMember gm = new GroupMember()
             {
                 Id = 0,
-                UserId = "a".PadLeft(37, 'a'),
-                Type = MemberType.Member
+                UserId = "a".PadLeft(37, 'a')
             };
 
             var results = ModelValidator.GetValidation(gm);
