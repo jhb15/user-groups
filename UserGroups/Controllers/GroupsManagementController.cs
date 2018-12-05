@@ -15,10 +15,12 @@ namespace UserGroups.Controllers
     public class GroupsManagementController : Controller
     {
         private readonly IGroupRepository groupRepository;
+        private readonly IGroupMemberRepository groupMemberRepository;
 
-        public GroupsManagementController(IGroupRepository groupRepository)
+        public GroupsManagementController(IGroupRepository groupRepository, IGroupMemberRepository groupMemberRepository)
         {
             this.groupRepository = groupRepository;
+            this.groupMemberRepository = groupMemberRepository;
         }
 
         // GET: GroupsManagement
@@ -136,9 +138,20 @@ namespace UserGroups.Controllers
 
         // GET: GroupsManagement/Join/{id}
         [HttpGet]
-        public async Task<IActionResult> Join(int id)
+        public async Task<IActionResult> Join(int? id)
         {
-            throw new NotImplementedException();
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var group = await groupRepository.GetByIdAsync(id.Value);
+            if (group == null)
+            {
+                return NotFound();
+            }
+
+            return View(group);
         }
 
         // POST: GroupsManagement/Join/{id}
@@ -146,7 +159,60 @@ namespace UserGroups.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> JoinConfirmed(int id)
         {
-            throw new NotImplementedException();
+            var userId = User.Claims.Single(c => c.Type == "sub");
+            var groupMember = await groupMemberRepository.GetByUserIdAsync(userId.Value);
+            var group = await groupRepository.GetByIdAsync(id);
+
+            if (groupMember != null)
+            {
+                ViewData["Error"] = "You're already a member of a group.";
+                return View(group);
+            }
+
+            groupMember = new GroupMember { UserId = userId.Value, GroupId = group.Id };
+            group.Members.Add(groupMember);
+            await groupRepository.UpdateAsync(group);
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        // GET: GroupsManagement/Leave/{id}
+        [HttpGet]
+        public async Task<IActionResult> Leave(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var group = await groupRepository.GetByIdAsync(id.Value);
+            if (group == null)
+            {
+                return NotFound();
+            }
+
+            return View(group);
+        }
+
+        // POST: GroupsManagement/Leave/{id}
+        [HttpPost, ActionName("Leave")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> LeaveConfirmed(int id)
+        {
+            var userId = User.Claims.Single(c => c.Type == "sub");
+            var group = await groupRepository.GetByIdAsync(id);
+            var groupMember = group.Members.SingleOrDefault(gm => gm.UserId == userId.Value);
+
+            if (groupMember == null)
+            {
+                ViewData["Error"] = "You're not a memeber of this group.";
+                return View(group);
+            }
+
+            group.Members.Remove(groupMember);
+            await groupRepository.UpdateAsync(group);
+
+            return RedirectToAction(nameof(Index));
         }
     }
 }
