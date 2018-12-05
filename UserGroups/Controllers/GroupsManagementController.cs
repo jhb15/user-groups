@@ -29,24 +29,6 @@ namespace UserGroups.Controllers
             return View(await groupRepository.GetAllAsync());
         }
 
-        // GET: GroupsManagement/Details/5
-        [Authorize(AuthenticationSchemes = "oidc", Policy = "Administrator")]
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var group = await groupRepository.GetByIdAsync(id.Value);
-            if (group == null)
-            {
-                return NotFound();
-            }
-
-            return View(group);
-        }
-
         // GET: GroupsManagement/Create
         [Authorize(AuthenticationSchemes = "oidc", Policy = "Administrator")]
         public IActionResult Create()
