@@ -16,6 +16,16 @@
         <dd>
             @Html.DisplayFor(model => model.Name)
         </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Members)
+        </dt>
+        <dd>
+            @foreach (var item in Model.Members)
+            {
+                // TODO show the actual username
+                <span>@item.UserId</span><br />
+            }
+        </dd>
     </dl>
 </div>
 <div>
