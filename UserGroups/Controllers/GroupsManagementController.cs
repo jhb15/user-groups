@@ -37,8 +37,6 @@ namespace UserGroups.Controllers
         }
 
         // POST: GroupsManagement/Create
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(AuthenticationSchemes = "oidc", Policy = "Administrator")]
@@ -69,9 +67,7 @@ namespace UserGroups.Controllers
             return View(group);
         }
 
-        // POST: GroupsManagement/Edit/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // POST: GroupsManagement/Edit/{id}
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(AuthenticationSchemes = "oidc", Policy = "Administrator")]
@@ -90,7 +86,7 @@ namespace UserGroups.Controllers
             return View(group);
         }
 
-        // GET: GroupsManagement/Delete/5
+        // GET: GroupsManagement/Delete/{id}
         [Authorize(AuthenticationSchemes = "oidc", Policy = "Administrator")]
         public async Task<IActionResult> Delete(int? id)
         {
@@ -108,7 +104,7 @@ namespace UserGroups.Controllers
             return View(group);
         }
 
-        // POST: GroupsManagement/Delete/5
+        // POST: GroupsManagement/Delete/{id}
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         [Authorize(AuthenticationSchemes = "oidc", Policy = "Administrator")]
@@ -198,7 +194,9 @@ namespace UserGroups.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        // GET: GroupsManagement/DeleteMember?memberId={memberId}&groupId={groupId}
         [HttpGet]
+        [Authorize(AuthenticationSchemes = "oidc", Policy = "Administrator")]
         public async Task<IActionResult> DeleteMember(int groupId, int memberId)
         {
             var group = await groupRepository.GetByIdAsync(groupId);
