@@ -19,10 +19,6 @@ namespace UserGroups.Models
 
         [Required]
         [JsonIgnore]
-        public virtual MemberType Type { get; set; }
-
-        [Required]
-        [JsonIgnore]
         public virtual int GroupId { get; set; }
     }
 }

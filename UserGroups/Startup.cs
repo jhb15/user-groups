@@ -79,6 +79,14 @@ namespace UserGroups
                 options.ApiName = appConfig.GetValue<string>("ApiResourceName");
             });
 
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("Administrator", pb => pb.RequireClaim("user_type", "administrator"));
+
+                // Coordinator policy allows both Coordinators and Administrators
+                options.AddPolicy("Coordinator", pb => pb.RequireClaim("user_type", new[] { "administrator", "coordinator" }));
+            });
+
             if (!environment.IsDevelopment())
             {
                 services.Configure<ForwardedHeadersOptions>(options =>
@@ -128,7 +136,7 @@ namespace UserGroups
             {
                 routes.MapRoute(
                     name: "default",
-                    template: "{controller=Home}/{action=Index}/{id?}");
+                    template: "{controller=GroupsManagement}/{action=Index}/{id?}");
             });
         }
 

@@ -8,6 +8,11 @@ namespace UserGroups.Models
 {
     public class Group
     {
+        public Group()
+        {
+            Members = new List<GroupMember>();
+        }
+
         [Key]
         public virtual int Id { get; set; }
 
