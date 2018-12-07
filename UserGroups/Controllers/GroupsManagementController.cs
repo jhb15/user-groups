@@ -1,13 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using UserGroups.Models;
 using UserGroups.Repositories;
+using UserGroups.Services;
 
 namespace UserGroups.Controllers
 {
@@ -16,34 +14,19 @@ namespace UserGroups.Controllers
     {
         private readonly IGroupRepository groupRepository;
         private readonly IGroupMemberRepository groupMemberRepository;
+        private readonly IGatekeeperApiClient gatekeeperApiClient;
 
-        public GroupsManagementController(IGroupRepository groupRepository, IGroupMemberRepository groupMemberRepository)
+        public GroupsManagementController(IGroupRepository groupRepository, IGroupMemberRepository groupMemberRepository, IGatekeeperApiClient gatekeeperApiClient)
         {
             this.groupRepository = groupRepository;
             this.groupMemberRepository = groupMemberRepository;
+            this.gatekeeperApiClient = gatekeeperApiClient;
         }
 
         // GET: GroupsManagement
         public async Task<IActionResult> Index()
         {
             return View(await groupRepository.GetAllAsync());
-        }
-
-        // GET: GroupsManagement/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var group = await groupRepository.GetByIdAsync(id.Value);
-            if (group == null)
-            {
-                return NotFound();
-            }
-
-            return View(group);
         }
 
         // GET: GroupsManagement/Create
@@ -54,8 +37,6 @@ namespace UserGroups.Controllers
         }
 
         // POST: GroupsManagement/Create
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(AuthenticationSchemes = "oidc", Policy = "Administrator")]
@@ -83,12 +64,20 @@ namespace UserGroups.Controllers
             {
                 return NotFound();
             }
+
+            var response = await gatekeeperApiClient.PostAsync("api/Users/Batch", group.Members.Select(m => m.UserId).ToArray());
+            if(response.IsSuccessStatusCode)
+            {
+                ViewData["Users"] = JsonConvert.DeserializeObject<User[]>(response.Content.ReadAsStringAsync().Result);
+            } else
+            {
+                ViewData["Users"] = new User[0];
+            }
+
             return View(group);
         }
 
-        // POST: GroupsManagement/Edit/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // POST: GroupsManagement/Edit/{id}
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(AuthenticationSchemes = "oidc", Policy = "Administrator")]
@@ -107,7 +96,7 @@ namespace UserGroups.Controllers
             return View(group);
         }
 
-        // GET: GroupsManagement/Delete/5
+        // GET: GroupsManagement/Delete/{id}
         [Authorize(AuthenticationSchemes = "oidc", Policy = "Administrator")]
         public async Task<IActionResult> Delete(int? id)
         {
@@ -125,7 +114,7 @@ namespace UserGroups.Controllers
             return View(group);
         }
 
-        // POST: GroupsManagement/Delete/5
+        // POST: GroupsManagement/Delete/{id}
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         [Authorize(AuthenticationSchemes = "oidc", Policy = "Administrator")]
@@ -213,6 +202,19 @@ namespace UserGroups.Controllers
             await groupRepository.UpdateAsync(group);
 
             return RedirectToAction(nameof(Index));
+        }
+
+        // GET: GroupsManagement/DeleteMember?memberId={memberId}&groupId={groupId}
+        [HttpGet]
+        [Authorize(AuthenticationSchemes = "oidc", Policy = "Administrator")]
+        public async Task<IActionResult> DeleteMember(int groupId, int memberId)
+        {
+            var group = await groupRepository.GetByIdAsync(groupId);
+            var groupMemeber = group.Members.SingleOrDefault(gm => gm.Id == memberId);
+            group.Members.Remove(groupMemeber);
+            await groupRepository.UpdateAsync(group);
+
+            return RedirectToAction(nameof(Edit), group);
         }
     }
 }
