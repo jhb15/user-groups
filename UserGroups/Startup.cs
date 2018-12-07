@@ -16,28 +16,31 @@ using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Authentication;
 using System.Net;
 using Microsoft.AspNetCore.HttpOverrides;
+using UserGroups.Services;
 
 namespace UserGroups
 {
     public class Startup
     {
+        private readonly IConfiguration configuration;
         private readonly IHostingEnvironment environment;
         private readonly IConfigurationSection appConfig;
 
-        public Startup(IConfiguration configuration, IHostingEnvironment environment)
+        public Startup(IConfiguration config, IHostingEnvironment env)
         {
-            Configuration = configuration;
-            this.environment = environment;
+            configuration = config;
+            environment = env;
             appConfig = configuration.GetSection("UserGroups");
         }
 
-        public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddHttpClient("gatekeeper", client => client.BaseAddress = new Uri(appConfig.GetValue<string>("GatekeeperUrl")));
             services.AddScoped<IGroupRepository, GroupRepository>();
             services.AddScoped<IGroupMemberRepository, GroupMemberRepository>();
+            services.AddSingleton<IGatekeeperApiClient, GatekeeperApiClient>();
 
             services.Configure<CookiePolicyOptions>(options =>
             {
@@ -49,7 +52,7 @@ namespace UserGroups
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
             services.AddDbContext<UserGroupsContext>(options =>
-                    options.UseMySql(Configuration.GetConnectionString("UserGroupsContext")));
+                    options.UseMySql(configuration.GetConnectionString("UserGroupsContext")));
 
             JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 
