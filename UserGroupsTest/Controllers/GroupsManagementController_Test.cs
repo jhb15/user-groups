@@ -1,10 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
 using Moq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Security.Claims;
 using System.Text;
 using UserGroups.Controllers;
 using UserGroups.Models;
@@ -190,6 +192,81 @@ namespace UserGroupsTest.Controllers
             Assert.IsType<RedirectToActionResult>(result);
             var redirectResult = result as RedirectToActionResult;
             Assert.Equal(nameof(controller.Index), redirectResult.ActionName);
+            groupRepository.Verify();
+        }
+
+        [Fact]
+        public async void Join_ReturnsNotFoundOnNullId()
+        {
+            var result = await controller.Join(null);
+            Assert.IsType<NotFoundResult>(result);
+        }
+
+        [Fact]
+        public async void Join_ReturnsNotFoundOnInvalidId()
+        {
+            groupRepository.Setup(gr => gr.GetByIdAsync(1)).ReturnsAsync((Group)null);
+            var result = await controller.Join(1);
+            Assert.IsType<NotFoundResult>(result);
+            groupRepository.Verify();
+        }
+
+        [Fact]
+        public async void Join_ShowsCorrectView()
+        {
+            var group = GroupGenerator.Create();
+            groupRepository.Setup(gr => gr.GetByIdAsync(group.Id)).ReturnsAsync(group);
+            var result = await controller.Join(group.Id);
+            Assert.IsType<ViewResult>(result);
+            var viewResult = result as ViewResult;
+            Assert.Null(viewResult.ViewName);
+            Assert.Equal(group, viewResult.Model);
+            groupRepository.Verify();
+        }
+
+        [Fact]
+        public async void Leave_ReturnsNotFoundOnNullId()
+        {
+            var result = await controller.Leave(null);
+            Assert.IsType<NotFoundResult>(result);
+        }
+
+        [Fact]
+        public async void Leave_ReturnsNotFoundOnInvalidId()
+        {
+            groupRepository.Setup(gr => gr.GetByIdAsync(1)).ReturnsAsync((Group)null);
+            var result = await controller.Leave(1);
+            Assert.IsType<NotFoundResult>(result);
+            groupRepository.Verify();
+        }
+
+        [Fact]
+        public async void Leave_ShowsCorrectView()
+        {
+            var group = GroupGenerator.Create();
+            groupRepository.Setup(gr => gr.GetByIdAsync(group.Id)).ReturnsAsync(group);
+            var result = await controller.Leave(group.Id);
+            Assert.IsType<ViewResult>(result);
+            var viewResult = result as ViewResult;
+            Assert.Null(viewResult.ViewName);
+            Assert.Equal(group, viewResult.Model);
+            groupRepository.Verify();
+        }
+
+        [Fact]
+        public async void DeleteMember_DeletesMember()
+        {
+            var group = GroupGenerator.Create();
+            var groupMember = GroupMemberGenerator.Create(groupId: group.Id);
+            group.Members.Clear();
+            group.Members.Add(groupMember);
+            groupRepository.Setup(gr => gr.GetByIdAsync(group.Id)).ReturnsAsync(group);
+            groupRepository.Setup(gr => gr.UpdateAsync(group)).ReturnsAsync(group);
+            var result = await controller.DeleteMember(group.Id, groupMember.Id);
+            Assert.DoesNotContain(groupMember, group.Members);
+            Assert.IsType<RedirectToActionResult>(result);
+            var redirectResult = result as RedirectToActionResult;
+            Assert.Equal(nameof(controller.Edit), redirectResult.ActionName);
             groupRepository.Verify();
         }
     }
