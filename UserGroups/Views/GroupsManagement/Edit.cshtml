@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = "Edit";
+    var users = ViewData["Users"] as User[];
 }
 
 <h2>Edit</h2>
@@ -40,8 +41,14 @@
             <tbody>
                 @foreach (var item in Model.Members)
                 {
+                    var displayName = "Deleted User";
+                    var user = users.FirstOrDefault(u => u.Id == item.UserId);
+                    if (user != null)
+                    {
+                        displayName = user.Email;
+                    }
                     <tr>
-                        <td>@item.UserId</td>
+                        <td>@displayName</td>
                         <td><a class="btn btn-danger" asp-action="DeleteMember" asp-route-memberId="@item.Id" asp-route-groupId="@Model.Id"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></a></td>
                     </tr>
                 }
