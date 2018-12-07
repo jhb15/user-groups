@@ -1,13 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using UserGroups.Models;
 using UserGroups.Repositories;
+using UserGroups.Services;
 
 namespace UserGroups.Controllers
 {
@@ -16,11 +14,13 @@ namespace UserGroups.Controllers
     {
         private readonly IGroupRepository groupRepository;
         private readonly IGroupMemberRepository groupMemberRepository;
+        private readonly IGatekeeperApiClient gatekeeperApiClient;
 
-        public GroupsManagementController(IGroupRepository groupRepository, IGroupMemberRepository groupMemberRepository)
+        public GroupsManagementController(IGroupRepository groupRepository, IGroupMemberRepository groupMemberRepository, IGatekeeperApiClient gatekeeperApiClient)
         {
             this.groupRepository = groupRepository;
             this.groupMemberRepository = groupMemberRepository;
+            this.gatekeeperApiClient = gatekeeperApiClient;
         }
 
         // GET: GroupsManagement
@@ -64,6 +64,16 @@ namespace UserGroups.Controllers
             {
                 return NotFound();
             }
+
+            var response = await gatekeeperApiClient.PostAsync("api/Users/Batch", group.Members.Select(m => m.UserId).ToArray());
+            if(response.IsSuccessStatusCode)
+            {
+                ViewData["Users"] = JsonConvert.DeserializeObject<User[]>(response.Content.ReadAsStringAsync().Result);
+            } else
+            {
+                ViewData["Users"] = new User[0];
+            }
+
             return View(group);
         }
 
@@ -204,7 +214,7 @@ namespace UserGroups.Controllers
             group.Members.Remove(groupMemeber);
             await groupRepository.UpdateAsync(group);
 
-            return View(nameof(Edit), group);
+            return RedirectToAction(nameof(Edit), group);
         }
     }
 }
