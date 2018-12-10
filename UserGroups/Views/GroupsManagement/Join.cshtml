@@ -1,34 +1,35 @@
 ﻿@model UserGroups.Models.Group
-
 @{
-    ViewData["Title"] = "Join";
+    ViewData["Title"] = "Join " + Model.Name;
 }
 
-<h2>Join</h2>
 
-@if (ViewData["Error"] != null)
-{
-    <div class="alert alert-danger" role="alert">
-        @ViewData["Error"]
+<div class="row">
+    <div class="col-md-6">
+
+        @if (ViewData["Error"] != null)
+        {
+            <div class="alert alert-danger" role="alert">
+                @ViewData["Error"]
+            </div>
+        }
+
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <strong class="card-title">Join @Html.DisplayFor(model => model.Name)</strong>
+            </div>
+            <div class="card-body">
+
+                <h5>Are you sure you want to join <i>@Html.DisplayFor(model => model.Name)</i>?</h5>
+                <hr />
+                <div>
+                    <form asp-action="Join">
+                        <input type="hidden" asp-for="Id" />
+                        <input type="submit" value="Join" class="btn btn-success" />
+                        <a asp-action="Index" class="btn btn-info">Back to List</a>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
-}
-
-<h3>Are you sure you want to join this group?</h3>
-<div>
-    <h4>Group</h4>
-    <hr />
-    <dl class="dl-horizontal">
-        <dt>
-            @Html.DisplayNameFor(model => model.Name)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.Name)
-        </dd>
-    </dl>
-
-    <form asp-action="Join">
-        <input type="hidden" asp-for="Id" />
-        <input type="submit" value="Join" class="btn btn-success" /> |
-        <a asp-action="Index">Back to List</a>
-    </form>
 </div>

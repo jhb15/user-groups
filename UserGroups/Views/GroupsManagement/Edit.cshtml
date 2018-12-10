@@ -1,59 +1,64 @@
 ﻿@model UserGroups.Models.Group
-
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Edit " + Model.Name;
     var users = ViewData["Users"] as User[];
 }
 
-<h2>Edit</h2>
-
-<h4>Group</h4>
-<hr />
 <div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="Id" />
-            <div class="form-group">
-                <label asp-for="Name" class="control-label"></label>
-                <input asp-for="Name" class="form-control" />
-                <span asp-validation-for="Name" class="text-danger"></span>
+    <div class="col-lg-8 col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <strong class="card-title">@Model.Members.Count Members of <i>@Html.DisplayFor(model => model.Name)</i></strong>
             </div>
-            <div class="form-group">
-                <a class="btn btn-default" asp-action="Index"><span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span> Back</a>
-                <input type="submit" value="Save" class="btn btn-success" />
+            <div class="table-stats order-table ov-h">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Members)
+                        {
+                            var displayName = "Deleted User";
+                            var user = users.FirstOrDefault(u => u.Id == item.UserId);
+                            if (user != null)
+                            {
+                                displayName = user.Email;
+                            }
+                            <tr>
+                                <td>@displayName</td>
+                                <td><a class="btn btn-danger" asp-action="DeleteMember" asp-route-memberId="@item.Id" asp-route-groupId="@Model.Id"><i class="fa fa-trash"></i></a></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
             </div>
-        </form>
+        </div>
     </div>
-</div>
 
-<h4>Members</h4>
-<hr />
-<div class="row">
-    <div class="col-md-12">
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <td>User</td>
-                    <td></td>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Model.Members)
-                {
-                    var displayName = "Deleted User";
-                    var user = users.FirstOrDefault(u => u.Id == item.UserId);
-                    if (user != null)
-                    {
-                        displayName = user.Email;
-                    }
-                    <tr>
-                        <td>@displayName</td>
-                        <td><a class="btn btn-danger" asp-action="DeleteMember" asp-route-memberId="@item.Id" asp-route-groupId="@Model.Id"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></a></td>
-                    </tr>
-                }
-            </tbody>
-        </table>
+    <div class="col-lg-4 col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <strong class="card-title">Update Group</strong>
+            </div>
+            <div class="card-body">
+                <form asp-action="Edit">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <input type="hidden" asp-for="Id" />
+                    <div class="form-group">
+                        <label asp-for="Name" class="control-label"></label>
+                        <input asp-for="Name" class="form-control" />
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <input type="submit" value="Save" class="btn btn-success" />
+                        <a class="btn btn-info" asp-action="Index">Back</a>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
 </div>
 
