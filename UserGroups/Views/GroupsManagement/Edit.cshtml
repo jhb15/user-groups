@@ -10,31 +10,29 @@
             <div class="card-header">
                 <strong class="card-title">@Model.Members.Count Members of <i>@Html.DisplayFor(model => model.Name)</i></strong>
             </div>
-            <div class="table-stats order-table ov-h">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>User</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var item in Model.Members)
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Members)
+                    {
+                        var displayName = "Deleted User";
+                        var user = users.FirstOrDefault(u => u.Id == item.UserId);
+                        if (user != null)
                         {
-                            var displayName = "Deleted User";
-                            var user = users.FirstOrDefault(u => u.Id == item.UserId);
-                            if (user != null)
-                            {
-                                displayName = user.Email;
-                            }
-                            <tr>
-                                <td>@displayName</td>
-                                <td><a class="btn btn-danger" asp-action="DeleteMember" asp-route-memberId="@item.Id" asp-route-groupId="@Model.Id"><i class="fa fa-trash"></i></a></td>
-                            </tr>
+                            displayName = user.Email;
                         }
-                    </tbody>
-                </table>
-            </div>
+                        <tr>
+                            <td>@displayName</td>
+                            <td class="text-right"><a class="btn btn-danger" asp-action="DeleteMember" asp-route-memberId="@item.Id" asp-route-groupId="@Model.Id"><i class="fa fa-trash"></i></a></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
         </div>
     </div>
 

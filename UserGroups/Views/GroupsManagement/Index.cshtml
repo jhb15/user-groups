@@ -15,43 +15,39 @@
             <a class="btn btn-success btn-sm" asp-action="Create">Create New Group</a>
         }
     </div>
-    <div class="table-stats order-table ov-h">
-        <table class="table">
-            <thead>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.Name)
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
                 <tr>
-                    <th>
-                        @Html.DisplayNameFor(model => model.Name)
-                    </th>
-                    <th>Number of members</th>
-                    <th>Actions</th>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Name)
+                    </td>
+                    <td class="text-right">
+                        @if (groupMemeber == null)
+                        {
+                            <a class="btn btn-success btn-sm" asp-action="Join" asp-route-id="@item.Id">Join</a>
+                        }
+                        else if (groupMemeber.GroupId == item.Id)
+                        {
+                            <a class="btn btn-warning btn-sm" asp-action="Leave" asp-route-id="@item.Id">Leave</a>
+                        }
+                        @if (isAdmin)
+                        {
+                            <a class="btn btn-info btn-sm" asp-action="Edit" asp-route-id="@item.Id"><i class="fa fa-pencil"></i></a>
+                            <a class="btn btn-danger btn-sm" asp-action="Delete" asp-route-id="@item.Id"><i class="fa fa-trash"></i></a>
+                        }
+                    </td>
                 </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Model)
-                {
-                    <tr>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.Name)
-                        </td>
-                        <td>@item.Members.Count</td>
-                        <td>
-                            @if (groupMemeber == null)
-                            {
-                                <a class="btn btn-success btn-sm" asp-action="Join" asp-route-id="@item.Id">Join</a>
-                            }
-                            else if (groupMemeber.GroupId == item.Id)
-                            {
-                                <a class="btn btn-warning btn-sm" asp-action="Leave" asp-route-id="@item.Id">Leave</a>
-                            }
-                            @if (isAdmin)
-                            {
-                                <a class="btn btn-info btn-sm" asp-action="Edit" asp-route-id="@item.Id"><i class="fa fa-pencil"></i></a>
-                                <a class="btn btn-danger btn-sm" asp-action="Delete" asp-route-id="@item.Id"><i class="fa fa-trash"></i></a>
-                            }
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
+            }
+        </tbody>
+    </table>
 </div>
