@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AberFitnessAuditLogger;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -18,11 +19,25 @@ namespace UserGroups.Controllers
     {
         private readonly IGroupRepository groupRepository;
         private readonly IGroupMemberRepository groupMemberRepository;
+        private readonly IAuditLogger auditLogger;
 
-        public GroupsController(IGroupRepository groupRepository, IGroupMemberRepository groupMemberRepository)
+        public GroupsController(IGroupRepository groupRepository, IGroupMemberRepository groupMemberRepository, IAuditLogger auditLogger)
         {
             this.groupRepository = groupRepository;
             this.groupMemberRepository = groupMemberRepository;
+            this.auditLogger = auditLogger;
+        }
+
+        private string CurrentCliendId()
+        {
+            try
+            {
+                return User.Claims.Where(c => c.Type == "client_id").FirstOrDefault().Value;
+            }
+            catch (NullReferenceException)
+            {
+                return "Unknown";
+            }
         }
 
         // GET: api/Groups
@@ -51,6 +66,7 @@ namespace UserGroups.Controllers
         [HttpGet("ForUser/{userId}")]
         public async Task<IActionResult> GetGroupForUser([FromRoute] string userId)
         {
+            await auditLogger.log(userId, $"Group memebership details retrieved by {CurrentCliendId()}");
             var groupMember = await groupMemberRepository.GetByUserIdAsync(userId);
 
             if (groupMember == null)

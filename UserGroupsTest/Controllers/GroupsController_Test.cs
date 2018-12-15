@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AberFitnessAuditLogger;
+using Microsoft.AspNetCore.Mvc;
 using Moq;
 using System;
 using System.Collections.Generic;
@@ -15,13 +16,15 @@ namespace UserGroupsTest.Controllers
     {
         private readonly Mock<IGroupRepository> groupRepository;
         private readonly Mock<IGroupMemberRepository> groupMemberRepository;
+        private readonly Mock<IAuditLogger> auditLogger;
         private readonly GroupsController controller;
 
         public GroupsController_Test()
         {
             groupRepository = new Mock<IGroupRepository>();
             groupMemberRepository = new Mock<IGroupMemberRepository>();
-            controller = new GroupsController(groupRepository.Object, groupMemberRepository.Object);
+            auditLogger = new Mock<IAuditLogger>();
+            controller = new GroupsController(groupRepository.Object, groupMemberRepository.Object, auditLogger.Object);
         }
 
         [Fact]

@@ -5,7 +5,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="biz.aberfitness.layout" Version="2.6.17" />
+    <PackageReference Include="biz.aberfitness.auditlogger" Version="1.0.1" />
+    <PackageReference Include="biz.aberfitness.layout" Version="2.6.20" />
     <PackageReference Include="BuildBundlerMinifier" Version="2.8.391" />
     <PackageReference Include="IdentityServer4.AccessTokenValidation" Version="2.7.0" />
     <PackageReference Include="Microsoft.AspNetCore.App" Version="2.1.6" />
