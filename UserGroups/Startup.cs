@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.Authentication;
 using System.Net;
 using Microsoft.AspNetCore.HttpOverrides;
 using UserGroups.Services;
+using AberFitnessAuditLogger;
 
 namespace UserGroups
 {
@@ -41,6 +42,7 @@ namespace UserGroups
             services.AddScoped<IGroupRepository, GroupRepository>();
             services.AddScoped<IGroupMemberRepository, GroupMemberRepository>();
             services.AddSingleton<IGatekeeperApiClient, GatekeeperApiClient>();
+            services.AddScoped<IAuditLogger, AuditLogger>();
 
             services.Configure<CookiePolicyOptions>(options =>
             {

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AberFitnessAuditLogger;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Moq;
 using System;
@@ -22,6 +23,7 @@ namespace UserGroupsTest.Controllers
         private Mock<IGroupRepository> groupRepository;
         private Mock<IGroupMemberRepository> groupMemberRepository;
         private Mock<IGatekeeperApiClient> gatekeeperApiClient;
+        private Mock<IAuditLogger> auditLogger;
         private GroupsManagementController controller;
 
         public HttpStatusCode HttpsStatusCode { get; private set; }
@@ -31,7 +33,8 @@ namespace UserGroupsTest.Controllers
             groupRepository = new Mock<IGroupRepository>();
             groupMemberRepository = new Mock<IGroupMemberRepository>();
             gatekeeperApiClient = new Mock<IGatekeeperApiClient>();
-            controller = new GroupsManagementController(groupRepository.Object, groupMemberRepository.Object, gatekeeperApiClient.Object);
+            auditLogger = new Mock<IAuditLogger>();
+            controller = new GroupsManagementController(groupRepository.Object, groupMemberRepository.Object, gatekeeperApiClient.Object, auditLogger.Object);
         }
 
         [Fact]
