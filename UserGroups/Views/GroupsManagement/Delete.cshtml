@@ -1,0 +1,25 @@
+﻿@model UserGroups.Models.Group
+@{
+    ViewData["Title"] = "Delete Group";
+}
+<div class="row">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header bg-danger text-white">
+                <strong class="card-title">Delete Group</strong>
+            </div>
+            <div class="card-body">
+
+                <h5>Are you sure you want to delete <i>@Html.DisplayFor(model => model.Name)</i>?</h5>
+
+                <hr />
+
+                <form asp-action="Delete">
+                    <input type="hidden" asp-for="Id" />
+                    <input type="submit" value="Delete" class="btn btn-danger" />
+                    <a asp-action="Index" class="btn btn-info">Back to List</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

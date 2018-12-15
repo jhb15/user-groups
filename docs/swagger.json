@@ -1,0 +1,191 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "description": "User-Groups API.",
+    "version": "1.1.0",
+    "title": "User-Groups API"
+  },
+  "tags": [
+    {
+      "name": "Group",
+      "description": "Operations related to Groups"
+    },
+    {
+      "name": "User",
+      "description": "Operations related to a User's group membership"
+    },
+    {
+      "name": "Service",
+      "description": "Operations related to the Service itself"
+    }
+  ],
+  "servers": [
+    {
+      "url": "https://docker2.aberfitness.biz/user-groups/",
+      "description": "Staging instance"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "OAuth2": {
+        "type": "oauth2",
+        "flows": {
+          "clientCredentials": {
+            "tokenUrl": "../gatekeeper/connect/token",
+            "refreshUrl": "../gatekeeper/connect/token",
+            "scopes": "user_groups"
+          }
+        }
+      }
+    },
+    "schemas": {
+      "Group": {
+        "properties": {
+          "Id": {
+            "type": "integer"
+          },
+          "Name": {
+            "type": "string"
+          }
+        }
+      },
+      "GroupWithMembers": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Group"
+          }
+        ],
+        "properties": {
+          "Members": {
+            "type": "array",
+            "items": {
+              "$ref":"#/components/schemas/GroupMember"
+            }
+          }
+        }
+      },
+      "GroupMember": {
+        "properties": {
+          "UserId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/api/Status": {
+      "get": {
+        "tags": [
+          "Service"
+        ],
+        "summary": "Queries the service status",
+        "responses": {
+          "200": {
+            "description": "The service is healthy"
+          }
+        }
+      }
+    },
+    "/api/Groups/{id}": {
+      "get": {
+        "tags": [
+          "Group"
+        ],
+        "summary": "Returns the details of a single Group",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupWithMembers"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorised"
+          },
+          "404": {
+            "description": "Group doesn't exist"
+          }
+        }
+      }
+    },
+    "/api/Groups/": {
+      "get": {
+        "tags": [
+          "Group"
+        ],
+        "summary": "Returns the details of all Groups",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Group"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorised"
+          }
+        }
+      }
+    },
+    "/api/Groups/ForUser/{userId}": {
+      "get": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Returns the Group which User belongs to",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "userId",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupWithMembers"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorised"
+          },
+          "404": {
+            "description": "The User does not belong to any group"
+          }
+        }
+      }
+    }
+  }
+}

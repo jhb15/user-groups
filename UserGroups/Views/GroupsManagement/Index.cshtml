@@ -1,0 +1,53 @@
+﻿@model IEnumerable<UserGroups.Models.Group>
+@inject UserGroups.Repositories.IGroupMemberRepository groupMemberRepository
+@{
+    ViewData["Title"] = "Groups";
+    var userId = User.Claims.Single(c => c.Type == "sub");
+    var isAdmin = User.HasClaim("user_type", "administrator");
+    var groupMemeber = await groupMemberRepository.GetByUserIdAsync(userId.Value);
+}
+
+<div class="card">
+    <div class="card-header">
+        <strong class="card-title">Groups Index</strong>
+        @if (isAdmin)
+        {
+            <a class="btn btn-success btn-sm" asp-action="Create">Create New Group</a>
+        }
+    </div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.Name)
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Name)
+                    </td>
+                    <td class="text-right">
+                        @if (groupMemeber == null)
+                        {
+                            <a class="btn btn-success btn-sm" asp-action="Join" asp-route-id="@item.Id">Join</a>
+                        }
+                        else if (groupMemeber.GroupId == item.Id)
+                        {
+                            <a class="btn btn-warning btn-sm" asp-action="Leave" asp-route-id="@item.Id">Leave</a>
+                        }
+                        @if (isAdmin)
+                        {
+                            <a class="btn btn-info btn-sm" asp-action="Edit" asp-route-id="@item.Id"><i class="fa fa-pencil"></i></a>
+                            <a class="btn btn-danger btn-sm" asp-action="Delete" asp-route-id="@item.Id"><i class="fa fa-trash"></i></a>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
